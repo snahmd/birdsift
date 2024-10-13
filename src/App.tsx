@@ -1,20 +1,38 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { worker } from "./mocks/browser";
+import type { Bird } from "./data/birds";
 
 worker.start();
 
 function App() {
+  const [birds, setBirds] = useState<Bird[]>([]);
   useEffect(() => {
-    fetch("https://birdsift.com/api/birds")
-      .then((res) => res.json())
-      .then((data) => console.log(data));
+    async function getBirds() {
+      try {
+        const response = await fetch("https://birdsift.com/api/birds");
+        const json = await response.json();
+        setBirds(json);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    getBirds();
   }, []);
 
   return (
     <>
       <h1>BirdSift</h1>
-      <h2>Hello</h2>
+      <div>
+        {birds.map((bird) => (
+          <div key={bird.name}>
+            <h2>
+              {bird.emoji} {bird.name}
+            </h2>
+            <p>{bird.description}</p>
+          </div>
+        ))}
+      </div>
     </>
   );
 }
